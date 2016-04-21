@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Love Potion RFID Server</title>
+</head>
+
+<body>
+
+<a href="/">Back</a>
+
+<hr/>
+
+{% if message %}
+
+<h2>{{ message }}</h2>
+
+<hr/>
+
+{% endif %}
+<form action="/edit" method="post">
+  <textarea name="users" rows=30 cols=130>{{ users }}</textarea>
+    <br/>
+    <input type="submit" name="save" value="Save">
+    <input type="submit" name="revert" value="Revert">
+</form>
+
+<hr>
+
+<p>The format of the access list is as follows:
+<ul>
+  <li>each line describes an RFID token serial number and matching person,
+    separated by a colon (":"):
+    <pre>a8948afefef22:Johnny Bigpants</pre></li>
+  <li>lines starting with a pound sign ("#") can be used for comments:
+    <pre># I'm a comment.</pre></li>
+  <li>to allow a user to unlock the doors via logging in, also add:
+    <pre>:user=&lt;username&gt;:password=&lt;password&gt;</pre></li>
+    <li>password is a sha1 hash of the password string. You can make one on Linux by running
+      <pre>$  echo -n secret_password | sha1sum</pre>
+      (note the extra space before "echo" - that will keep it out of shell history)
+    </li>
+   <li>to allow a user to add users and edit access list, also add:
+     <pre>:admin=yes</pre></li>
+</ul>
+</p>
+
+</body>
+</html>
