@@ -1,7 +1,6 @@
 # Real hardware implementation for talking to GPIO and Pigpio libraries.
 
 import ConfigParser, os
-import RPi.GPIO as GPIO
 import pigpio
 
 import hardware
@@ -94,8 +93,7 @@ class decoder:
 # GPIO4 is NOT 4...
 # To know what number to use here see:
 # http://openmicros.org/index.php/articles/94-ciseco-product-documentation/raspberry-pi/217-getting-started-with-raspberry-pi-gpio-and-python
-OPEN_PORT = 4
-DEFAULT_PIN_CONFIG = { 'data_low':17, 'data_high':18, 'led':27, 'beep':22 }
+DEFAULT_PIN_CONFIG = { 'data_low':17, 'data_high':18, 'led':27, 'beep':22, 'lock':23}
 PIN_SECTION = 'Pins'
 PIN_NAMES = DEFAULT_PIN_CONFIG.keys()
 
@@ -118,19 +116,22 @@ class RealHardware(hardware.Hardware):
         self.tag_seen_handler("%s" % value)
 
     def Initialize(self):
-        # Set up GPIO pins.
-        # Refer to pin using Broadcom SOC numbering.
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(OPEN_PORT, GPIO.OUT)
-
         # Create an RFID object.
         self.pi = pigpio.pi()
         self.rfid = decoder(self.pi, self.data_low, self.data_high, self._RfidTagScanned)
 
+        self.pi.set_mode(self.led, pigpio.OUTPUT)
+        self.pi.set_mode(self.beep, pigpio.OUTPUT)
+        self.pi.set_mode(self.lock, pigpio.OUTPUT)
+
     def UnlockDoor(self):
-        GPIO.output(OPEN_PORT, True)
+        self.pi.write(self.lock, True)
+        self.pi.write(self.led, False)
+
         time.sleep(self.open_time)
-        GPIO.output(OPEN_PORT, False)
+
+        self.pi.write(self.lock, False)
+        self.pi.write(self.led, True)
 
     def ShutDown(self):    
         print("Closing...")
