@@ -1,5 +1,6 @@
 # Real hardware implementation for talking to GPIO and Pigpio libraries.
 
+import ConfigParser, os
 import RPi.GPIO as GPIO
 import pigpio
 
@@ -94,15 +95,25 @@ class decoder:
 # To know what number to use here see:
 # http://openmicros.org/index.php/articles/94-ciseco-product-documentation/raspberry-pi/217-getting-started-with-raspberry-pi-gpio-and-python
 OPEN_PORT = 4
-DL_PORT = 17
-DH_PORT = 18
+DEFAULT_PIN_CONFIG = { 'data_low':17, 'data_high':18, 'led':27, 'beep':22 }
+PIN_SECTION = 'Pins'
+PIN_NAMES = DEFAULT_PIN_CONFIG.keys()
 
 class RealHardware(hardware.Hardware):
 
     def __init__(self, *args, **kwargs):
         super(RealHardware, self).__init__(*args, **kwargs)
         self.rfid = None
+        config_parser = ConfigParser.RawConfigParser(DEFAULT_PIN_CONFIG)
+        config_parser.add_section(PIN_SECTION)
+        config_parser.read(self.pin_config)
+        for pin in PIN_NAMES:
+          setattr(self, pin, config_parser.getint(PIN_SECTION, pin))
 
+        if not os.path.isfile(self.pin_config):
+          with open(self.pin_config, 'w') as cfg_file:
+            config_parser.write(cfg_file)
+          
     def _RfidTagScanned(self, bits, value):
         self.tag_seen_handler("%s" % value)
 
@@ -114,7 +125,7 @@ class RealHardware(hardware.Hardware):
 
         # Create an RFID object.
         self.pi = pigpio.pi()
-        self.rfid = decoder(self.pi, DL_PORT, DH_PORT, self._RfidTagScanned)
+        self.rfid = decoder(self.pi, self.data_low, self.data_high, self._RfidTagScanned)
 
     def UnlockDoor(self):
         GPIO.output(OPEN_PORT, True)

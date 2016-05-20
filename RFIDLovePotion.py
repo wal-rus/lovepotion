@@ -37,6 +37,8 @@ def ParseFlags():
                         help='TTS server port')
     parser.add_argument('--log_file', default='~/.config/lovepotion/log.txt', type=str,
                         help='Location of the log file')
+    parser.add_argument('--pin_config', default='~/.config/lovepotion/pins.cfg',
+                        type=str, help='Location of the pin configuration file')
 
     args = parser.parse_args()
     return args
@@ -49,7 +51,8 @@ class Server(object):
 
         self._users = user_db.UserDb(
                 self._args.user_db, self._args.user_db_backup_dir)
-        self._hw = hardware.Instantiate(self._args.mock, self._args.open_time)
+        self._hw = hardware.Instantiate(self._args.mock, self._args.open_time,
+                                        os.path.expanduser(self._args.pin_config))
         self._speak_server = send_string.SendString(
                 self._args.speak_server,
                 self._args.speak_port)
