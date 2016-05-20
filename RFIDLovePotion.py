@@ -27,15 +27,15 @@ def ParseFlags():
     parser.add_argument('--port', type=int, default=8000)
     parser.add_argument('--open_time', type=int, default=3,
                         help='Time in seconds to keep lock open')
-    parser.add_argument('--user_db', default='~/users.db', type=str,
+    parser.add_argument('--user_db', default='~/.config/lovepotion/users.db', type=str,
                         help='User database file location')
-    parser.add_argument('--user_db_backup_dir', default='~/users_backup', type=str,
+    parser.add_argument('--user_db_backup_dir', default='~/.config/lovepotion/users_backup', type=str,
                         help='User database backup directory')
     parser.add_argument('--speak_server', default='192.168.1.17', type=str,
                         help='TTS server')
     parser.add_argument('--speak_port', default=4000, type=int,
                         help='TTS server port')
-    parser.add_argument('--log_file', default='~/log.txt', type=str,
+    parser.add_argument('--log_file', default='~/.config/lovepotion/log.txt', type=str,
                         help='Location of the log file')
 
     args = parser.parse_args()
